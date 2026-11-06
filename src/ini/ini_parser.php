@@ -9,9 +9,9 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -281,6 +281,7 @@ class ezcConfigurationIniParser implements Iterator
      * @return ezcConfigurationIniItem or ezcConfigurationValidationItem
      *          depending on the type of parser
      */
+    #[\ReturnTypeWillChange]
     public function current()
     {
         return $this->item;
@@ -294,6 +295,7 @@ class ezcConfigurationIniParser implements Iterator
      *
      * @return int
      */
+    #[\ReturnTypeWillChange]
     public function key()
     {
         return 0;
@@ -427,6 +429,7 @@ class ezcConfigurationIniParser implements Iterator
      * the parseNext() method which returns when a Group Header, Setting or
      * Validation error has been found.
      */
+    #[\ReturnTypeWillChange]
     public function next()
     {
         $this->parseNext();
@@ -442,6 +445,7 @@ class ezcConfigurationIniParser implements Iterator
      *
      * @throws Exception whenever this method is called.
      */
+    #[\ReturnTypeWillChange]
     public function rewind()
     {
         throw new Exception( 'You can only use this implementation of the iterator with a NoRewindIterator.' );
@@ -456,6 +460,7 @@ class ezcConfigurationIniParser implements Iterator
      *
      * @return bool Whether the end of file has been reached.
      */
+    #[\ReturnTypeWillChange]
     public function valid()
     {
         return !feof( $this->fp ) || $this->itemFound;

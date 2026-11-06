@@ -8,9 +8,9 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -33,7 +33,7 @@ class ezcConfigurationArrayWriterTest extends ezcTestCase
 {
     private $tempDir;
 
-    protected function setUp()
+    protected function setUp() : void
     {
         if ( !ezcBaseFeatures::hasExtensionSupport( 'posix' ) )
         {
@@ -42,13 +42,15 @@ class ezcConfigurationArrayWriterTest extends ezcTestCase
         $this->tempDir = $this->createTempDir( 'ezcConfigurationArrayWriterTest' );
     }
 
-    protected function tearDown()
+    protected function tearDown() : void
     {
         $this->removeTempDir();
     }
 
     public function testConfigSettingUseComments()
     {
+        $this->expectNotToPerformAssertions();
+
         $backend = new ezcConfigurationArrayWriter();
         $backend->setOptions( array ( 'useComments' => true ) );
         $backend->setOptions( array ( 'useComments' => false ) );
@@ -70,6 +72,8 @@ class ezcConfigurationArrayWriterTest extends ezcTestCase
 
     public function testConfigSettingPermissions()
     {
+        $this->expectNotToPerformAssertions();
+
         $backend = new ezcConfigurationArrayWriter();
         $backend->setOptions( array ( 'permissions' => 0660 ) );
     }
@@ -476,7 +480,7 @@ class ezcConfigurationArrayWriterTest extends ezcTestCase
 
     public static function suite()
     {
-         return new PHPUnit_Framework_TestSuite( 'ezcConfigurationArrayWriterTest' );
+         return new \PHPUnit\Framework\TestSuite( 'ezcConfigurationArrayWriterTest' );
     }
 
 }

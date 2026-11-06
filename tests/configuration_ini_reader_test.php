@@ -8,9 +8,9 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -33,6 +33,8 @@ class ezcConfigurationIniReaderTest extends ezcTestCase
 {
     public function testConfigSettingUseComments()
     {
+        $this->expectNotToPerformAssertions();
+
         $backend = new ezcConfigurationIniReader();
         $backend->setOptions( array ( 'useComments' => true ) );
         $backend->setOptions( array ( 'useComments' => false ) );
@@ -124,27 +126,27 @@ class ezcConfigurationIniReaderTest extends ezcTestCase
 
     public function testConfigExistsCtor()
     {
-        $backend = new ezcConfigurationIniReader( 'Configuration/tests/files/basic.ini' );
+        $backend = new ezcConfigurationIniReader( 'tests/files/basic.ini' );
         $this->assertEquals( true, $backend->configExists() );
     }
 
     public function testConfigExistsInitMethod()
     {
         $backend = new ezcConfigurationIniReader();
-        $backend->init( 'Configuration/tests/files', 'basic' );
+        $backend->init( 'tests/files', 'basic' );
         $this->assertEquals( true, $backend->configExists() );
     }
 
     public function testConfigNotExistsCtor()
     {
-        $backend = new ezcConfigurationIniReader( 'Configuration/tests/files/non-existent.ini' );
+        $backend = new ezcConfigurationIniReader( 'tests/files/non-existent.ini' );
         $this->assertEquals( false, $backend->configExists() );
     }
 
     public function testConfigNotExistsInitMethod()
     {
         $backend = new ezcConfigurationIniReader();
-        $backend->init( 'Configuration/tests/files', 'non-existent' );
+        $backend->init( 'tests/files', 'non-existent' );
         $this->assertEquals( false, $backend->configExists() );
     }
 
@@ -152,26 +154,26 @@ class ezcConfigurationIniReaderTest extends ezcTestCase
     {
         try
         {
-            $backend = new ezcConfigurationIniReader( 'Configuration/tests/files/non-existent.ini' );
+            $backend = new ezcConfigurationIniReader( 'tests/files/non-existent.ini' );
             $backend->load();
             $this->fail( 'Expected exception not thrown' );
         }
         catch ( ezcBaseFileNotFoundException $e )
         {
-            $this->assertEquals( "The file 'Configuration/tests/files/non-existent.ini' could not be found.", $e->getMessage() );
+            $this->assertEquals( "The file 'tests/files/non-existent.ini' could not be found.", $e->getMessage() );
         }
     }
 
     public function testEmptyFile()
     {
-        $backend = new ezcConfigurationIniReader( 'Configuration/tests/files/empty.ini' );
+        $backend = new ezcConfigurationIniReader( 'tests/files/empty.ini' );
         $return = $backend->load();
         $this->assertEquals( new ezcConfiguration(), $return );
     }
 
     public function testOneGroup()
     {
-        $backend = new ezcConfigurationIniReader( 'Configuration/tests/files/one-group.ini' );
+        $backend = new ezcConfigurationIniReader( 'tests/files/one-group.ini' );
         $return = $backend->load();
 
         $settings = array(
@@ -194,7 +196,7 @@ class ezcConfigurationIniReaderTest extends ezcTestCase
 
     public function testOneGroupWithGetConfig()
     {
-        $backend = new ezcConfigurationIniReader( 'Configuration/tests/files/one-group.ini' );
+        $backend = new ezcConfigurationIniReader( 'tests/files/one-group.ini' );
         $backend->load();
         $return = $backend->getConfig();
 
@@ -218,7 +220,7 @@ class ezcConfigurationIniReaderTest extends ezcTestCase
 
     public function testTwoGroups()
     {
-        $backend = new ezcConfigurationIniReader( 'Configuration/tests/files/two-groups.ini' );
+        $backend = new ezcConfigurationIniReader( 'tests/files/two-groups.ini' );
         $return = $backend->load();
 
         $settings = array(
@@ -243,7 +245,7 @@ class ezcConfigurationIniReaderTest extends ezcTestCase
 
     public function testKake()
     {
-        $backend = new ezcConfigurationIniReader( 'Configuration/tests/files/kake.ini' );
+        $backend = new ezcConfigurationIniReader( 'tests/files/kake.ini' );
         $return = $backend->load();
 
         $settings = array(
@@ -262,7 +264,7 @@ class ezcConfigurationIniReaderTest extends ezcTestCase
 
     public function testFormats()
     {
-        $backend = new ezcConfigurationIniReader( 'Configuration/tests/files/formats.ini' );
+        $backend = new ezcConfigurationIniReader( 'tests/files/formats.ini' );
         $return = $backend->load();
 
         $settings = array(
@@ -300,7 +302,7 @@ class ezcConfigurationIniReaderTest extends ezcTestCase
 
     public function test2D()
     {
-        $backend = new ezcConfigurationIniReader( 'Configuration/tests/files/multi-dim.ini' );
+        $backend = new ezcConfigurationIniReader( 'tests/files/multi-dim.ini' );
         $return = $backend->load();
 
         $settings = array(
@@ -321,7 +323,7 @@ class ezcConfigurationIniReaderTest extends ezcTestCase
 
     public function test3D()
     {
-        $backend = new ezcConfigurationIniReader( 'Configuration/tests/files/multi-dim2.ini' );
+        $backend = new ezcConfigurationIniReader( 'tests/files/multi-dim2.ini' );
         $return = $backend->load();
 
         $settings = array(
@@ -349,7 +351,7 @@ class ezcConfigurationIniReaderTest extends ezcTestCase
 
     public function test3DSemiColonComment()
     {
-        $backend = new ezcConfigurationIniReader( 'Configuration/tests/files/multi-dim3.ini' );
+        $backend = new ezcConfigurationIniReader( 'tests/files/multi-dim3.ini' );
         $return = $backend->load();
 
         $settings = array(
@@ -381,7 +383,7 @@ class ezcConfigurationIniReaderTest extends ezcTestCase
         {
             $this->markTestSkipped( "Only for 32 bit machines" );
         }
-        $backend = new ezcConfigurationIniReader( 'Configuration/tests/files/int-range.ini' );
+        $backend = new ezcConfigurationIniReader( 'tests/files/int-range.ini' );
         $return = $backend->load();
 
         $settings = array(
@@ -431,7 +433,7 @@ class ezcConfigurationIniReaderTest extends ezcTestCase
         {
             $this->markTestSkipped( "Only for 64 bit machines" );
         }
-        $backend = new ezcConfigurationIniReader( 'Configuration/tests/files/int-range.ini' );
+        $backend = new ezcConfigurationIniReader( 'tests/files/int-range.ini' );
         $return = $backend->load();
 
         $settings = array(
@@ -477,22 +479,22 @@ class ezcConfigurationIniReaderTest extends ezcTestCase
 
     public function testTimestamp()
     {
-        $backend = new ezcConfigurationIniReader( 'Configuration/tests/files/empty.ini' );
-        @touch( 'Configuration/tests/files/empty.ini', 1130859680 );
+        $backend = new ezcConfigurationIniReader( 'tests/files/empty.ini' );
+        @touch( 'tests/files/empty.ini', 1130859680 );
         $ts = $backend->getTimestamp();
         $this->assertEquals( 1130859680, $ts );
     }
 
     public function testTimestampNonExistingFile()
     {
-        $backend = new ezcConfigurationIniReader( 'Configuration/tests/files/non-existent.ini' );
+        $backend = new ezcConfigurationIniReader( 'tests/files/non-existent.ini' );
         $ts = $backend->getTimestamp();
         $this->assertEquals( false, $ts );
     }
 
     public function testSimpleErrors()
     {
-        $backend = new ezcConfigurationIniReader( 'Configuration/tests/files/simple-errors.ini' );
+        $backend = new ezcConfigurationIniReader( 'tests/files/simple-errors.ini' );
         try
         {
             $return = $backend->load();
@@ -500,13 +502,13 @@ class ezcConfigurationIniReaderTest extends ezcTestCase
         }
         catch ( ezcConfigurationParseErrorException $e )
         {
-            $this->assertEquals( "Invalid data: 'c8756*&%&^%&%$&C%$%C*@%C*$' in 'Configuration/tests/files/simple-errors.ini', line '8'.", $e->getMessage() );
+            $this->assertEquals( "Invalid data: 'c8756*&%&^%&%$&C%$%C*@%C*$' in 'tests/files/simple-errors.ini', line '8'.", $e->getMessage() );
         }
     }
 
     public function testBug7855()
     {
-        $path = 'Configuration/tests/files/bug7855.ini';
+        $path = 'tests/files/bug7855.ini';
         $backend = new ezcConfigurationIniReader( $path );
         $return = $backend->load();
 
@@ -528,7 +530,7 @@ class ezcConfigurationIniReaderTest extends ezcTestCase
     /* Validation with a non-strict validator */
     public function testValidationNonStrict()
     {
-        $path = 'Configuration/tests/files/simple-errors.ini';
+        $path = 'tests/files/simple-errors.ini';
         $backend = new ezcConfigurationIniReader( $path );
         $return = $backend->validate( false );
 
@@ -542,7 +544,7 @@ class ezcConfigurationIniReaderTest extends ezcTestCase
 
     public function testValidationNonStrictGetResultList()
     {
-        $path = 'Configuration/tests/files/simple-errors.ini';
+        $path = 'tests/files/simple-errors.ini';
         $backend = new ezcConfigurationIniReader( $path );
         $return = $backend->validate( false );
         $resultList = $return->getResultList();
@@ -553,7 +555,7 @@ class ezcConfigurationIniReaderTest extends ezcTestCase
 
     public function testValidationNonStrictGetResultList2()
     {
-        $path = 'Configuration/tests/files/more-errors.ini';
+        $path = 'tests/files/more-errors.ini';
         $backend = new ezcConfigurationIniReader( $path );
         $return = $backend->validate( false );
         $resultList = $return->getResultList();
@@ -567,7 +569,7 @@ class ezcConfigurationIniReaderTest extends ezcTestCase
 
     public function testValidationNonStrictWarningErrorCount1()
     {
-        $path = 'Configuration/tests/files/simple-errors.ini';
+        $path = 'tests/files/simple-errors.ini';
         $backend = new ezcConfigurationIniReader( $path );
         $return = $backend->validate( false );
         $this->assertEquals( 1, $return->getErrorCount() );
@@ -576,7 +578,7 @@ class ezcConfigurationIniReaderTest extends ezcTestCase
 
     public function testValidationNonStrictWarningErrorCount2()
     {
-        $path = 'Configuration/tests/files/more-errors.ini';
+        $path = 'tests/files/more-errors.ini';
         $backend = new ezcConfigurationIniReader( $path );
         $return = $backend->validate( false );
         $this->assertEquals( 2, $return->getErrorCount() );
@@ -586,7 +588,7 @@ class ezcConfigurationIniReaderTest extends ezcTestCase
     /* Validation with a strict validator */
     public function testValidationStrict()
     {
-        $path = 'Configuration/tests/files/simple-errors.ini';
+        $path = 'tests/files/simple-errors.ini';
         $backend = new ezcConfigurationIniReader( $path );
         $return = $backend->validate( true );
 
@@ -600,7 +602,7 @@ class ezcConfigurationIniReaderTest extends ezcTestCase
 
     public function testValidationStrictGetResultList()
     {
-        $path = 'Configuration/tests/files/simple-errors.ini';
+        $path = 'tests/files/simple-errors.ini';
         $backend = new ezcConfigurationIniReader( $path );
         $return = $backend->validate( true );
         $resultList = $return->getResultList();
@@ -611,7 +613,7 @@ class ezcConfigurationIniReaderTest extends ezcTestCase
 
     public function testValidationStrictGetResultList2()
     {
-        $path = 'Configuration/tests/files/more-errors.ini';
+        $path = 'tests/files/more-errors.ini';
         $backend = new ezcConfigurationIniReader( $path );
         $return = $backend->validate( true );
         $resultList = $return->getResultList();
@@ -625,7 +627,7 @@ class ezcConfigurationIniReaderTest extends ezcTestCase
 
     public function testValidationStrictWarningErrorCount1()
     {
-        $path = 'Configuration/tests/files/simple-errors.ini';
+        $path = 'tests/files/simple-errors.ini';
         $backend = new ezcConfigurationIniReader( $path );
         $return = $backend->validate( true );
         $this->assertEquals( 1, $return->getErrorCount() );
@@ -634,7 +636,7 @@ class ezcConfigurationIniReaderTest extends ezcTestCase
 
     public function testValidationStrictWarningErrorCount2()
     {
-        $path = 'Configuration/tests/files/more-errors.ini';
+        $path = 'tests/files/more-errors.ini';
         $backend = new ezcConfigurationIniReader( $path );
         $return = $backend->validate( true );
         $this->assertEquals( 2, $return->getErrorCount() );
@@ -644,7 +646,7 @@ class ezcConfigurationIniReaderTest extends ezcTestCase
     // test for issue #15309: A simple quote in an index hash, in ini files
     public function testQuoteInHashKey()
     {
-        $path = 'Configuration/tests/files/bug15309.ini';
+        $path = 'tests/files/bug15309.ini';
         $backend = new ezcConfigurationIniReader( $path );
         $return = $backend->load();
         $this->assertEquals( array( "CÔTE D'IVOIRE" => 'Wybrzeże Kości Słoniowej' ), $return->getSetting( 'TestSettings', "Countries" ) );
@@ -652,7 +654,7 @@ class ezcConfigurationIniReaderTest extends ezcTestCase
 
     public static function suite()
     {
-         return new PHPUnit_Framework_TestSuite( 'ezcConfigurationIniReaderTest' );
+         return new \PHPUnit\Framework\TestSuite( 'ezcConfigurationIniReaderTest' );
     }
 
 }

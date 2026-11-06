@@ -8,9 +8,9 @@
  * to you under the Apache License, Version 2.0 (the
  * "License"); you may not use this file except in compliance
  * with the License.  You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -33,7 +33,7 @@ class ezcConfigurationIniWriterTest extends ezcTestCase
 {
     private $tempDir;
 
-    protected function setUp()
+    protected function setUp() : void
     {
         if ( !ezcBaseFeatures::hasExtensionSupport( 'posix' ) )
         {
@@ -42,13 +42,15 @@ class ezcConfigurationIniWriterTest extends ezcTestCase
         $this->tempDir = $this->createTempDir( 'ezcConfigurationIniWriterTest' );
     }
 
-    protected function tearDown()
+    protected function tearDown() : void
     {
         $this->removeTempDir();
     }
 
     public function testConfigSettingUseComments()
     {
+        $this->expectNotToPerformAssertions();
+
         $backend = new ezcConfigurationIniWriter();
         $backend->setOptions( array ( 'useComments' => true ) );
         $backend->setOptions( array ( 'useComments' => false ) );
@@ -70,6 +72,8 @@ class ezcConfigurationIniWriterTest extends ezcTestCase
 
     public function testConfigSettingPermissions()
     {
+        $this->expectNotToPerformAssertions();
+
         $backend = new ezcConfigurationIniWriter();
         $backend->setOptions( array ( 'permissions' => 0660 ) );
     }
@@ -339,8 +343,8 @@ class ezcConfigurationIniWriterTest extends ezcTestCase
                 'Hex4' => 0x11189196,
                 'TextColor' => 66302,
                 'Octal1' => 01,
-                'Octal2' => 0458,
-                'Permission' => 0438,
+                'Octal2' => 0457,
+                'Permission' => 0437,
                 'Float1' => 0.2,
                 'Float2' => .8123,
                 'Float3' => 42.,
@@ -409,7 +413,7 @@ class ezcConfigurationIniWriterTest extends ezcTestCase
         $backend = new ezcConfigurationIniReader( $this->tempDir . '/string-formats.ini' );
         $return = $backend->load();
         $this->assertEquals( $test, $return );
-        $this->assertEquals( file_get_contents( 'Configuration/tests/files/string-formats-test.ini' ), file_get_contents( $this->tempDir . '/string-formats.ini' ) );
+        $this->assertEquals( file_get_contents( 'tests/files/string-formats-test.ini' ), file_get_contents( $this->tempDir . '/string-formats.ini' ) );
     }
 
     public function test2D()
@@ -505,7 +509,7 @@ class ezcConfigurationIniWriterTest extends ezcTestCase
 
     public static function suite()
     {
-         return new PHPUnit_Framework_TestSuite( 'ezcConfigurationIniWriterTest' );
+         return new \PHPUnit\Framework\TestSuite( 'ezcConfigurationIniWriterTest' );
     }
 
 }
