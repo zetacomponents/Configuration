@@ -217,6 +217,83 @@ class ezcConfigurationIniParser implements Iterator
     }
 
     /**
+     * Decodes the escape sequences in a quoted dimension key.
+     *
+     * Supports the escape sequences of a double quoted PHP string: \n, \t,
+     * \r, \v, \e, \f, \\, \$, \", octal (\101), hexadecimal (\x41)
+     * and Unicode code points (\u{e9}). Any other backslash is kept as it
+     * is. Unlike a double quoted PHP string, variables and expressions are
+     * never interpolated: the key is data, not code. A key that would not be
+     * a valid PHP string (an unescaped '"', a trailing backslash, an invalid
+     * code point) is not an error either; the invalid part is kept as it is.
+     * \0 and \x00 decode to a NUL byte, as in PHP.
+     *
+     * @param string $dimension The dimension key without the quotes
+     * @return string
+     */
+    private static function decodeQuotedDimension( $dimension )
+    {
+        return preg_replace_callback(
+            '@\\\\(?:([ntrvef\\\\$"])|([0-7]{1,3})|x([0-9A-Fa-f]{1,2})|u\{([0-9A-Fa-f]+)\})@',
+            array( 'ezcConfigurationIniParser', 'decodeEscapeSequence' ),
+            $dimension
+        );
+    }
+
+    /**
+     * Returns the character for one escape sequence matched by
+     * decodeQuotedDimension().
+     *
+     * @param array $match
+     * @return string
+     */
+    private static function decodeEscapeSequence( array $match )
+    {
+        if ( isset( $match[1] ) && $match[1] !== '' )
+        {
+            $map = array(
+                'n' => "\n", 't' => "\t", 'r' => "\r", 'v' => "\x0b",
+                'e' => "\x1b", 'f' => "\x0c", '\\' => '\\', '$' => '$', '"' => '"',
+            );
+            return $map[$match[1]];
+        }
+        if ( isset( $match[2] ) && $match[2] !== '' )
+        {
+            return chr( octdec( $match[2] ) & 0xff );
+        }
+        if ( isset( $match[3] ) && $match[3] !== '' )
+        {
+            return chr( hexdec( $match[3] ) );
+        }
+
+        $codePoint = hexdec( $match[4] );
+        if ( $codePoint < 0x80 )
+        {
+            return chr( $codePoint );
+        }
+        if ( $codePoint < 0x800 )
+        {
+            return chr( 0xc0 | ( $codePoint >> 6 ) ) .
+                   chr( 0x80 | ( $codePoint & 0x3f ) );
+        }
+        if ( $codePoint < 0x10000 )
+        {
+            return chr( 0xe0 | ( $codePoint >> 12 ) ) .
+                   chr( 0x80 | ( ( $codePoint >> 6 ) & 0x3f ) ) .
+                   chr( 0x80 | ( $codePoint & 0x3f ) );
+        }
+        if ( $codePoint <= 0x10ffff )
+        {
+            return chr( 0xf0 | ( $codePoint >> 18 ) ) .
+                   chr( 0x80 | ( ( $codePoint >> 12 ) & 0x3f ) ) .
+                   chr( 0x80 | ( ( $codePoint >> 6 ) & 0x3f ) ) .
+                   chr( 0x80 | ( $codePoint & 0x3f ) );
+        }
+        // Not a valid code point, keep the sequence as it is.
+        return $match[0];
+    }
+
+    /**
      * Creates a INI setting item to be returned by the current() method.
      *
      * The return value is used to tell the calling function to determine
@@ -239,8 +316,10 @@ class ezcConfigurationIniParser implements Iterator
                 $value = self::parseIniValue( $value );
             }
 
-            /* If we have dimensions, we need to modify the array a bit so that
-             * it is valid PHP code, as we're going to use evil eval() here. */
+            /* If we have dimensions, they are encoded into a string of the
+             * form ['key1'][]['key2'], with each key escaped with
+             * addslashes(). ezcConfigurationIniReader decodes this string
+             * again without evaluating it. */
             $dimensionString = '';
             if ( strlen( $dimensions ) > 0 )
             {
@@ -255,9 +334,7 @@ class ezcConfigurationIniParser implements Iterator
                     {
                         if ( $dimension[0] == '"' && $dimension[strlen( $dimension ) - 1] == '"' )
                         {
-                            $dimension = substr( $dimension, 1, -1 );
-                            /* Ugly hack to convert '\n' to "\n" */
-                            $dimension = eval( "return \"$dimension\";" );
+                            $dimension = self::decodeQuotedDimension( substr( $dimension, 1, -1 ) );
                         }
                         $dimension = addslashes( $dimension );
                         $dimensionString .= "['$dimension']";

@@ -652,6 +652,81 @@ class ezcConfigurationIniReaderTest extends ezcTestCase
         $this->assertEquals( array( "CÔTE D'IVOIRE" => 'Wybrzeże Kości Słoniowej' ), $return->getSetting( 'TestSettings', "Countries" ) );
     }
 
+    public function testQuotedDimensionIsNotEvaluated()
+    {
+        $marker = tempnam( sys_get_temp_dir(), 'ezc_cfg_' );
+        unlink( $marker );
+        putenv( "EZC_CONFIGURATION_TEST_MARKER={$marker}" );
+
+        try
+        {
+            $backend = new ezcConfigurationIniReader( 'Configuration/tests/files/dimension-code.ini' );
+            $return = $backend->load();
+        }
+        catch ( Exception $e )
+        {
+            // An exception is acceptable, executing the payload is not.
+        }
+        putenv( 'EZC_CONFIGURATION_TEST_MARKER' );
+
+        $executed = file_exists( $marker );
+        if ( $executed )
+        {
+            unlink( $marker );
+        }
+        $this->assertFalse( $executed, 'Code in a quoted dimension key was executed.' );
+
+        $this->assertEquals(
+            array( "{\${file_put_contents(getenv('EZC_CONFIGURATION_TEST_MARKER'),'executed')}}" => 1 ),
+            $return->getSetting( 'TestSettings', 'Key' )
+        );
+        $this->assertEquals( array( '{$foo}' => 2 ), $return->getSetting( 'TestSettings', 'Other' ) );
+    }
+
+    public function testQuotedDimensionEscapes()
+    {
+        $backend = new ezcConfigurationIniReader( 'Configuration/tests/files/dimension-escapes.ini' );
+        $return = $backend->load();
+
+        $expected = array(
+            "quo\nted" => 1,
+            "tab\there" => 2,
+            'double"quote' => 3,
+            'hexA' => 4,
+            'octA' => 5,
+            'back\\slash' => 6,
+            'dollar$sign' => 7,
+            'unknown\\q' => 8,
+            "it's" => 9,
+            "cr\rvt\x0bff\x0cesc\x1b" => 10,
+            "uni\xc3\xa9" => 11,
+            'plain\\n' => 12,
+            7 => 13,
+            8 => 14,
+            'sub' => array( 15, 16 ),
+        );
+        $this->assertSame( $expected, $return->getSetting( 'TestSettings', 'Key' ) );
+    }
+
+    public function testQuotedDimensionIsLiteral()
+    {
+        $backend = new ezcConfigurationIniReader( 'Configuration/tests/files/dimension-literal.ini' );
+        $return = $backend->load();
+
+        $expected = array(
+            '$var' => 1,
+            '${var}' => 2,
+            'a"b' => 3,
+            'trailing\\' => 4,
+            '\\u{110000}' => 5,
+            '\\u{}' => 6,
+            'un"quoted' => 7,
+            "nul\0" => 8,
+            "hexnul\0" => 9,
+        );
+        $this->assertSame( $expected, $return->getSetting( 'TestSettings', 'Key' ) );
+    }
+
     public static function suite()
     {
          return new \PHPUnit\Framework\TestSuite( 'ezcConfigurationIniReaderTest' );

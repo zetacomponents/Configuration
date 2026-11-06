@@ -142,10 +142,14 @@ class ezcConfigurationIniReader extends ezcConfigurationFileReader
                         break;
 
                     case ezcConfigurationIniItem::SETTING:
-                        eval( '$settings[$element->group][$element->setting]'. $element->dimensions. ' = $element->value;' );
+                        $path = array_merge(
+                            array( $element->group, $element->setting ),
+                            $this->parseDimensions( $element->dimensions )
+                        );
+                        self::assignPath( $settings, $path, $element->value );
                         if ( !is_null( $element->comments ) )
                         {
-                            eval( '$comments[$element->group][$element->setting]'. $element->dimensions. ' = $element->comments;' );
+                            self::assignPath( $comments, $path, $element->comments );
                         }
                         break;
                 }
@@ -158,6 +162,73 @@ class ezcConfigurationIniReader extends ezcConfigurationFileReader
 
         $this->config = new ezcConfiguration( $settings, $comments );
         return $this->config;
+    }
+
+    /**
+     * Splits the dimension string of an INI item into its keys.
+     *
+     * The string has the form ['key1'][]['key2'] as created by
+     * ezcConfigurationIniParser, where each key is escaped with addslashes().
+     * An empty pair of brackets is returned as null and means "append".
+     *
+     * @throws ezcConfigurationParseErrorException if the string is malformed.
+     * @param string $dimensions
+     * @return array
+     */
+    private function parseDimensions( $dimensions )
+    {
+        $keys = array();
+        $offset = 0;
+        $length = strlen( (string) $dimensions );
+        while ( $offset < $length )
+        {
+            if ( !preg_match( "@\\G\\[(?:'((?:[^'\\\\]|\\\\.)*)')?\\]@s", $dimensions, $match, 0, $offset ) )
+            {
+                throw new ezcConfigurationParseErrorException( $this->path, 0, "Invalid dimension string '{$dimensions}'" );
+            }
+            $keys[] = isset( $match[1] ) ? stripslashes( $match[1] ) : null;
+            $offset += strlen( $match[0] );
+        }
+        return $keys;
+    }
+
+    /**
+     * Assigns $value to the element of $target described by the keys in $path.
+     *
+     * Missing elements are created; a null key appends a new element, like
+     * the empty brackets in $array[] = $value.
+     *
+     * @param array $target
+     * @param array $path
+     * @param mixed $value
+     */
+    private static function assignPath( array &$target, array $path, $value )
+    {
+        $ref =& $target;
+        $last = count( $path ) - 1;
+        foreach ( $path as $i => $key )
+        {
+            if ( $i === $last )
+            {
+                if ( $key === null )
+                {
+                    $ref[] = $value;
+                }
+                else
+                {
+                    $ref[$key] = $value;
+                }
+                break;
+            }
+            if ( $key === null )
+            {
+                $ref[] = array();
+                end( $ref );
+                $key = key( $ref );
+            }
+            $ref =& $ref[$key];
+        }
+        unset( $ref );
     }
 
     /**
